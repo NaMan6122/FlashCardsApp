@@ -22,4 +22,13 @@ const verifyJWT = asyncHandler( async(req , res, next) => {
     next();
 });
 
-export { verifyJWT };
+const isUserAdmin = asyncHandler( async(req, res) => {
+    //if we are checking this it means we have passed through the verifyJWT middleware, and hence we have the access to req.user property.
+    const currUser = req.user;
+    if(currUser.isAdmin === false){
+        throw new ApiError(403, "Unauthorized Access, the User is Not Admin!!");
+    }
+    next();
+});
+
+export { verifyJWT, isUserAdmin };

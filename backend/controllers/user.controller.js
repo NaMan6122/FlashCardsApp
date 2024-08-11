@@ -1,7 +1,7 @@
 import { ApiError } from "../helpers/ApiError.js";
 import { ApiResponse} from "../helpers/ApiResponse.js";
 import { asyncHandler } from "../helpers/AsyncHandler.js";
-import { User } from "../models/User.js";
+import { User } from "../models/userModel.js";
 
 const generateTokens = async(userID) => { //async handler could'nt be used, as it by default accepts function with parameters (req, res).
     try {
@@ -20,9 +20,9 @@ const generateTokens = async(userID) => { //async handler could'nt be used, as i
 };
 
 const onSignup = asyncHandler( async(req, res) => {
-    const {fullName, username, email, password, role} = req.body;
-    console.log(username, fullName, email, password, role);
-    if(!fullName || !username || !email  || !password ){
+    const {username, email, password} = req.body;
+    console.log(username, email, password);
+    if(!username || !email  || !password ){
         throw new ApiError(400, "All Fields Are Mandatory!!");
     }
     
@@ -36,13 +36,9 @@ const onSignup = asyncHandler( async(req, res) => {
     //console.log(`hi`)
     //doing this method to create a new DB entry instead of create because we need to check whether options fields are empty or not.
     const userObj = {
-        fullName : fullName,
         username : username,
         email : email,
         password : password,
-    }
-    if(role == "student" || role == "expert" ){
-        userObj.role = role;
     }
     const user = new User(userObj);
     if(!user){
@@ -58,15 +54,13 @@ const onSignup = asyncHandler( async(req, res) => {
 
 const onLogin = asyncHandler( async(req, res) => {
     
-    const { username, email, password } = req.body;
+    const { username, password } = req.body;
     //console.log(username, password);
-    if(!username || !password || !email){
+    if(!username || !password){
         throw new ApiError(400, "All Fields Are Mandatory!!");
     }
 
-    const user = await User.findOne({
-        $or: [{username}, {email}],
-    });
+    const user = await User.findOne({username})
     //console.log(user);
     if(!user){
         throw new ApiError(400, "User does not exist!!");
@@ -107,10 +101,43 @@ const getCurrentUserInfo = asyncHandler( async(req, res) => {
     .json(new ApiResponse(200, currUser, "User Details Fetched Successfully!!"));
 });
 
+const logoutUser = asyncHandler( async(req, res) => {
+//clear refreshToken from DB, accessToken from cookie.
+    //we will use a middleware here to implement the logout functionality.
+
+    //deleting the refreshToken.
+    await User.findByIdAndUpdate(req.user._id,
+        {
+            // $set: {
+            //     refreshToken: undefined,
+            // }
+            $unset: {
+                refreshToken: 1, //removes the field itself from the document.
+            }
+        },
+        {
+            new: true,
+        }
+    )
+
+    //deleting the accessToken from cookie.
+    const cookieOptions = {
+        httpOnly: true,
+        secure: false,
+    }
+
+    console.log("User Logged Out!!");
+    return res.status(200)
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
+    .json(new ApiResponse(200, {}, "User logged out successfully"))
+});
+
 export {
     generateTokens,
     onSignup,
     onLogin,
     getCurrentUserInfo,
+    logoutUser,
 }
 
