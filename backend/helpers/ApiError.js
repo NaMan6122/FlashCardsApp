@@ -8,7 +8,7 @@ class ApiError extends Error{
         this.statusCode = statusCode;
         this.error = error;
         this.data = null;
-        this.success = success;
+        //this.success = success; this was causing the error success not defined.
     }
 }
 

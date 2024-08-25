@@ -11,7 +11,7 @@ const generateTokens = async(userID) => { //async handler could'nt be used, as i
         //console.log(accessToken, refreshToken);
     
         user.refreshToken = refreshToken; //saving the refreshToken in the DB as well.
-        user.save({validateBeforeSave : false});
+        await user.save({validateBeforeSave : false});
         return {accessToken, refreshToken};
     } catch (error) {
         console.log(`token gen error`);
@@ -68,19 +68,26 @@ const onLogin = asyncHandler( async(req, res) => {
     //comparing the passwords:
     const isMatch = await user.isPasswordCorrect(password);
     if(!isMatch){
+        console.log("Invalid Password!!!")
         throw new ApiError(400, "Invalid Password!!");
     }
+    //console.log(user._id)
 
     //now generating tokens to validate the login of the user:
     const { accessToken, refreshToken } = await generateTokens(user._id);
+    if(!accessToken || !refreshToken){
+        console.log("Login Error Due to Token!")
+        throw new ApiError(500, "Token generation Error!!");
+    }
     //console.log(accessToken, refreshToken);
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const cookieOptions={ //cookie config and settings, so that they can only be edited by the server.
         httpOnly: true,
-        secure: false,
+        secure: true,
     }
+    console.log(`User: ${loggedInUser.username} Logged in Successfully!`)
     return res.status(200)
     .cookie("accessToken", accessToken, cookieOptions)
     .cookie("refreshToken", refreshToken, cookieOptions)

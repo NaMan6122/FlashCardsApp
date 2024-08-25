@@ -2,7 +2,6 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from "react";
 import axios from 'axios';
-import "./styling/loginsignup.css"
 
 export default function loginPage() {
     const navigate = useNavigate();
@@ -29,7 +28,13 @@ export default function loginPage() {
             alert("User Login Successful!");
             navigate("/homepage")
         } catch (error : any) {
-            console.log(`Error while logging in user!! ${error.message}`);
+            if(error.response){
+                console.log(error.response);
+                alert(`Login Failed!?!: ${error.response.data.message || 'Unknown error'}`);
+            }else{
+                console.log(error.message);
+                alert(`Unexpected Error Occured While Logging in! ${error.message}`);
+            }
         }finally{
             setLoading(false);
         }
