@@ -10,9 +10,10 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true,
 }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded());
-app.use(cookieParser());
+
 
 //handling api routes:
 import userRouter from "./routes/user.routes.js"

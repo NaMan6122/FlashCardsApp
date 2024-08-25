@@ -8,8 +8,10 @@ dotenv.config();
 //checks whether the user is logged in or not, and if he is, this function acts as a middleware and adds req.user field to the req object.
 const verifyJWT = asyncHandler( async(req , _, next) => {
     const accessToken = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer", "");
-    console.log(req.cookies);
-    //console.log(accessToken);
+    // console.log("hi");
+    // console.log(req.cookies);
+    // console.log("hi");
+    // console.log(accessToken);
     if(!accessToken){
         throw new ApiError(400, "Unauthorized Access, Please Login First!!");
     }
@@ -28,7 +30,8 @@ const verifyJWT = asyncHandler( async(req , _, next) => {
 const isUserAdmin = asyncHandler( async(req, res, next) => {
     //if we are checking this it means we have passed through the verifyJWT middleware, and hence we have the access to req.user property.
     const currUser = req.user;
-    //console.log(req.user);
+    console.log(req.user);
+    console.log("Hello!");
     if(currUser.isAdmin === false){
         throw new ApiError(403, "Unauthorized Access, the User is Not Admin!!");
     }

@@ -23,7 +23,10 @@ export default function loginPage() {
     const onLogin = async() => {
         try {
             setLoading(true);
-            const response = await axios.post("http://localhost:4000/api/users/v1/login", user);
+            const response = await axios.post("http://localhost:4000/api/users/v1/login",
+                user,
+                { withCredentials : true},
+            );
             console.log(`User Logged In Successfully!! ${response.data}`);
             alert("User Login Successful!");
             navigate("/homepage")

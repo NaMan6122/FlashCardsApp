@@ -7,23 +7,28 @@ interface PrivateRouteProps {
   }
   
   const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [isAdmin, setIsAdmin] = useState<boolean>(false);
-    const [isLoading, setLoading] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoading, setLoading] = useState(true);
+    const [Error, setError] = useState(null);
 
     useEffect(() => {
-
+        console.log("useEffect running");
         const checkUserRoleandAuth = async() => {
             try {
-                setLoading(true);
-                const verificationResponse = await axios.get("http://localhost:4000/api/users/v1/authcheck");
-                console.log(verificationResponse, "hi");
+                console.log("HiiI");
+                const verificationResponse = await axios.get("http://localhost:4000/api/users/v1/authcheck", { withCredentials : true });
+                console.log(verificationResponse.data, "hi");
+                console.log("HiiIi");
+
                 setIsAuthenticated(true);
                 setIsAdmin(true);
-            } catch (error) {
+            } catch (error : any) {
                 setIsAdmin(false);
                 setIsAuthenticated(false);
-                console.log(`Error while validating authentication and role! ${error}`)
+                console.log(`Error while validating authentication and role! ${error.response.data.message}`);
+                //alert(`Error: ${error.verificationResponse.data.message}`);
+                setError(error.response.data.message);
             }finally{
                 setLoading(false);
             }
@@ -34,19 +39,18 @@ interface PrivateRouteProps {
 
     if(isLoading){
         return <div>Loading...</div>;
+    }else{
+        if(!isAuthenticated){
+            console.log("Not Valid Req, Redirecting...")
+            alert(`Unauthorized access: ${Error}`);
+            return <Navigate to="/login" replace={true} />
+        }
+        if(!isAdmin){
+            console.log("Not Valid Req, Redirecting!!!")
+            alert(`Access denied!! ${Error}`);
+            return <Navigate to="/homepage" replace={true} />
+        }
     }
-
-    if(isAuthenticated === false){
-        console.log("Not Valid Req, Redirecting...")
-        alert("Unauthorized access denied!!");
-        return <Navigate to="/login" replace={true} />
-    }
-    if(isAdmin === false){
-        console.log("Not Valid Req, Redirecting!!!")
-        alert("Access denied!!");
-        return <Navigate to="/homepage" replace={true} />
-    }
-
     return element;
 }
 

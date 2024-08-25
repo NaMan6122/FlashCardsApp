@@ -85,7 +85,7 @@ const onLogin = asyncHandler( async(req, res) => {
 
     const cookieOptions={ //cookie config and settings, so that they can only be edited by the server.
         httpOnly: true,
-        secure: true,
+        secure: false,
     }
     console.log(`User: ${loggedInUser.username} Logged in Successfully!`)
     return res.status(200)
