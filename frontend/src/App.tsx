@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login.tsx';
 import Signup from './pages/Signup.tsx';
 import Admin from './pages/Admin.tsx';
-import PrivateRoute from "./pages/PrivateRoute.tsx"
+import PrivateRoute from "./components/PrivateRoute.tsx"
 import Homepage from './pages/Homepage.tsx';
 function App() {
 
